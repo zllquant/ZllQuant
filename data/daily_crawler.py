@@ -87,5 +87,5 @@ if __name__ == '__main__':
     end_date = '20200806'
     # dc.crawl_index(begin_date=begin_date, end_date=end_date)
     # dc.crawl_stock('qfq', begin_date, end_date)
-    dc.crawl_stock('hfq', begin_date, end_date)
-    # dc.crawl_stock(begin_date,end_date,adj=None)
+    # dc.crawl_stock('hfq', begin_date, end_date)
+    dc.crawl_stock(begin_date=begin_date, end_date=end_date)

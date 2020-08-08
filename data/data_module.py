@@ -4,7 +4,7 @@ from datetime import datetime
 from pymongo import ASCENDING
 from pandas import DataFrame
 
-
+"""本地数据库获取数据"""
 class DataModule:
     def __init__(self):
         pass
@@ -50,9 +50,30 @@ class DataModule:
 
         return df_daily
 
+    def get_all_price_one_day(self, date, adj=None):
+        if date is None:
+            date = datetime.now().strftime('%Y%m%d')
+        if not isinstance(date, str):
+            date = date.strftime('%Y%m%d')
+
+        collection = 'daily' if adj is None or adj == '' else 'daily_' + adj
+        daily_cursor = DB_CONN[collection].find(
+            {'date': date}, projection={'_id': False}
+        )
+        df_daily = DataFrame([daily for daily in daily_cursor])
+        if len(df_daily.index) > 0:
+            df_daily.set_index('code', inplace=True)
+        else:
+            print("数据为空!")
+
+        return df_daily
+
 
 if __name__ == '__main__':
-    df_daily = DataModule().get_price('000001.XSHG', begin_date='20200505', end_date='20200510')
-    print(df_daily)
-    df_daily = DataModule().get_price('000002.XSHE', adj='qfq', begin_date='20200505', end_date='20200510')
+    dm = DataModule()
+    # df_daily = DataModule().get_price('000001.XSHG', begin_date='20200505', end_date='20200510')
+    # print(df_daily)
+    # df_daily = DataModule().get_price('000002.XSHE', adj='qfq', begin_date='20200505', end_date='20200510')
+    # print(df_daily)
+    df_daily = dm.get_all_price_one_day('20200803', adj='qfq')
     print(df_daily)

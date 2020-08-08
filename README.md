@@ -21,3 +21,7 @@
 ## 复权
 
 ![image-20200808151400079](README.assets/image-20200808151400079.png)
+
+# 因子检验
+
+![image-20200808232403283](README.assets/image-20200808232403283.png)
