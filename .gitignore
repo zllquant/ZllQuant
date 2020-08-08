@@ -142,3 +142,4 @@ cython_debug/
 
 #file and folder
 util/password.py
+data/data_fixing.py

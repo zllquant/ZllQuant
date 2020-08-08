@@ -9,7 +9,7 @@ class DataModule:
     def __init__(self):
         pass
 
-    def pro_bar(self, code=None, adj=None, begin_date=None, end_date=None):
+    def get_price(self, code=None, adj=None, begin_date=None, end_date=None):
         """
         get stock daily data
         :param code:
@@ -42,7 +42,8 @@ class DataModule:
         df_daily = DataFrame([daily for daily in daily_cursor])
         if len(df_daily.index) > 0:
             df_daily.set_index('date', inplace=True)
-
+        else:
+            print("数据为空!")
         # print(daily_cursor)  # <pymongo.cursor.Cursor object at 0x00000247A65D4C18>
         # for daily in daily_cursor:
         #       print(daily) #{'code': '000002.SZ', 'date': '20200506', 'amount': 2409411.108, ...}
@@ -51,7 +52,7 @@ class DataModule:
 
 
 if __name__ == '__main__':
-    df_daily = DataModule().pro_bar('000002.SZ', begin_date='20200505', end_date='20200510')
+    df_daily = DataModule().get_price('000001.XSHG', begin_date='20200505', end_date='20200510')
     print(df_daily)
-    df_daily = DataModule().pro_bar('000002.SZ', adj='hfq', begin_date='20200505', end_date='20200510')
+    df_daily = DataModule().get_price('000002.XSHE', adj='qfq', begin_date='20200505', end_date='20200510')
     print(df_daily)

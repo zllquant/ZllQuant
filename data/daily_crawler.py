@@ -51,14 +51,14 @@ class DailyCrawler:
         df_daily.rename(columns={'ts_code': 'code', 'trade_date': 'date'}, inplace=True)
         df_daily['code'] = df_daily['code'].map(
             lambda x: x.replace('SH', 'XSHG') if x[-1] == 'H' else x.replace('SZ', 'XSHE'))
-        updates_requests = []
+        update_requests = []
         # 每一行数据转成字典
         for index in df_daily.index:
             doc = dict(df_daily.loc[index])
             # flush=True , 只要有日志就输出,没有间隔
             # print(doc, flush=True)
             # 这里不用insert避免重复数据,所以用更新
-            updates_requests.append(
+            update_requests.append(
                 # filter : 更新哪一条
                 # $set : 更新的值
                 # upsert : 找到就更新,没找到就插入
@@ -71,11 +71,11 @@ class DailyCrawler:
             )
 
         # 保证不为空
-        if len(updates_requests) > 0:
+        if len(update_requests) > 0:
             collection_name = 'daily' if adj is None else 'daily_' + adj
             # bulk_write 批量写入
             # 写入daily数据集合(表) , 不按顺序ordered = False
-            update_result = DB_CONN[collection_name].bulk_write(updates_requests, ordered=False)
+            update_result = DB_CONN[collection_name].bulk_write(update_requests, ordered=False)
             print('保存-%s-%s数据 , 插入:%4d , 更新:%4d'
                   % (code, collection_name, update_result.upserted_count, update_result.modified_count),
                   flush=True)
@@ -86,6 +86,6 @@ if __name__ == '__main__':
     begin_date = '20200101'
     end_date = '20200806'
     # dc.crawl_index(begin_date=begin_date, end_date=end_date)
-    dc.crawl_stock('qfq', begin_date, end_date)
-    # dc.crawl_stock('hfq',begin_date,end_date)
+    # dc.crawl_stock('qfq', begin_date, end_date)
+    dc.crawl_stock('hfq', begin_date, end_date)
     # dc.crawl_stock(begin_date,end_date,adj=None)

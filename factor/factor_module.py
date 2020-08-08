@@ -72,6 +72,8 @@ class FactorModule:
         # 这个df可能为空
         if df_factor.index.size > 0:
             df_factor.set_index('code', inplace=True)
+        else:
+            print("数据为空!")
 
         return df_factor
 
