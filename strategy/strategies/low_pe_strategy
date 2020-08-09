@@ -1,0 +1,10 @@
+# 策略定义模板
+
+# 策略名称
+name = 低PE策略
+# 股票池
+stock_pool = low_pe_stock_pool
+# 回测周期, 开始日期, 默认值20150101
+begin_date = 20150101
+# 结束日期 , 默认当前日期
+end_date = 20200805
