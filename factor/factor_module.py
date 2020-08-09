@@ -3,6 +3,9 @@ from util.database import DB_CONN
 import pandas as pd
 from datetime import datetime
 from pymongo import ASCENDING
+import rqdatac as rqd
+
+rqd.init()
 
 
 class FactorModule:
@@ -48,7 +51,7 @@ class FactorModule:
 
         return df_factor
 
-    def get_factor_one_day(self, factor=None, date=None):
+    def get_factor_one_day(self, universe, factor=None, date=None):
         """
         get a factor value of all codes in one day
         获取所有股票在某个交易日的某个因子值
@@ -62,18 +65,7 @@ class FactorModule:
 
         if date is None:
             date = datetime.now().strftime('%Y%m%d')
-
-        factor_cursor = DB_CONN[factor].find(
-            {'name': factor, 'date': date}
-            , projection={'_id': False}
-        )
-        # 多个字典一秒变DataFrame!
-        df_factor = pd.DataFrame([doc for doc in factor_cursor])
-        # 这个df可能为空
-        if df_factor.index.size > 0:
-            df_factor.set_index('code', inplace=True)
-        else:
-            print("数据为空!")
+        df_factor = rqd.get_factor(universe, factor, date, date).dropna()
 
         return df_factor
 

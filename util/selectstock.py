@@ -4,6 +4,15 @@ import pandas as pd
 rqd.init()
 
 
+def filter_stock_pool(date):
+    stocklist = get_universe(date)
+    stocklist = drop_st(stocklist, date)
+    stocklist = drop_suspended(stocklist, date)
+    stocklist = drop_recently_listed(stocklist, date)
+
+    return stocklist
+
+
 def get_universe(date):
     return (
         rqd.all_instruments(type='CS', date=date)

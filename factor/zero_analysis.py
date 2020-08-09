@@ -1,5 +1,5 @@
 import rqdatac as rqd
-from util.selectstock import *
+from util.selectstock import filter_stock_pool
 import logging
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -16,14 +16,6 @@ class ZeroPortfolioAnalysis:
         self.group = group
         self.benchmark = benchmark
 
-    @staticmethod
-    def __select_stock(date):
-        universe = get_universe(date)
-        universe = drop_suspended(universe, date)
-        universe = drop_st(universe, date)
-        universe = drop_recently_listed(universe, date)
-
-        return universe
 
     def analyze(self):
         dates = rqd.get_trading_dates(self.begin_date, self.end_date)
@@ -51,7 +43,7 @@ class ZeroPortfolioAnalysis:
 
             last_date = date
             # 选出当天可交易的股票
-            universe = self.__select_stock(date)
+            universe = filter_stock_pool(date)
             factor_df = rqd.get_factor(universe, self.factor, date, date)[lambda x: x > 0]
             # 每档数量
             position_size = int(len(factor_df) / self.group)

@@ -2,9 +2,24 @@
 
 # 策略名称
 name = 低PE策略
+
 # 股票池
 stock_pool = low_pe_stock_pool
+
+# 初始资金
+capital = 1e7
+
+# 个股头寸
+single_position = 200000
+
+# 股票池的调整周期
+stock_pool_rebalance_dates = 20
+
 # 回测周期, 开始日期, 默认值20150101
-begin_date = 20150101
+begin_date = 20200601
+
 # 结束日期 , 默认当前日期
 end_date = 20200805
+
+# 买入信号
+buy_signal = daily_up_break_ma10
