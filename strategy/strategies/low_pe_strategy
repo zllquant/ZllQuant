@@ -16,7 +16,7 @@ single_position = 200000
 stock_pool_rebalance_dates = 20
 
 # 回测周期, 开始日期, 默认值20150101
-begin_date = 20200601
+begin_date = 20200701
 
 # 结束日期 , 默认当前日期
 end_date = 20200805

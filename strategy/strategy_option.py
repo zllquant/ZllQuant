@@ -1,6 +1,7 @@
 import rqdatac as rqd
 from datetime import datetime
 from strategy.stockpool.stock_pool_factory import StockPoolFactory
+from trading.signal.signal_factory import SignalFactory
 
 """增加参数,获取参数类"""
 
@@ -48,7 +49,7 @@ class StrategyOption:
         capital = self.options.get('capital', None)
         if capital is None or capital == '':
             capital = 1e7
-        return int(capital)
+        return float(capital)
 
     @property
     def single_position(self):
@@ -59,4 +60,7 @@ class StrategyOption:
 
     @property
     def buy_signal(self):
-        return self.options.get('buy_signal', None)
+        buy_signal = None
+        if 'buy_signal' in self.options:
+            return SignalFactory.get_signal(self.options['buy_signal'])
+        return buy_signal

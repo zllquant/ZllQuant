@@ -19,7 +19,7 @@ class PEFactor(BaseFactor):
         # 某天所有股票数据
         # df_daily = dm.get_all_price_one_day(date)
         stocklist = rqd.all_instruments('CS', date)['order_book_id'].tolist()
-        pe = rqd.get_factor(stocklist, self.name, date, date)
+        pe = rqd.get_factor(stocklist, self.name, date, date).loc[lambda x: x > 0]
         factors = []
         for code in pe.index:
             factors.append(
@@ -30,4 +30,4 @@ class PEFactor(BaseFactor):
 
 
 if __name__ == '__main__':
-    PEFactor().compute(begin_date='20200101', end_date='20200805')
+    PEFactor().compute(begin_date='20190801', end_date='20200805')

@@ -9,6 +9,7 @@ rqd.init()
 class LowPeStockPool(BaseStockPool):
     def get_stocks(self):
         all_dates = rqd.get_trading_dates(self.begin_date, self.end_date)
+        all_dates = [i.strftime('%Y%m%d') for i in all_dates]
         adjusted_dates = []
         date_codes_dict = {}
         # 获取因子数据
@@ -17,6 +18,7 @@ class LowPeStockPool(BaseStockPool):
         stocklist = []
         for index in range(0, len(all_dates), self.interval):
             date = all_dates[index]
+            print('正在获取:', date)
             adjusted_dates.append(date)
             # 先保存现在持有的股票中的停牌股
             if len(stocklist) > 0:
@@ -28,6 +30,7 @@ class LowPeStockPool(BaseStockPool):
 
             # 去除了今天停牌、ST、上市不满60
             universe = filter_stock_pool(date)
+            # 用的是米筐的数据
             df_factor = fm.get_factor_one_day(universe, 'pe_ratio_ttm', date)
             for code in df_factor[df_factor > 0].sort_values().index:
                 if len(stocklist) >= 100:
@@ -35,5 +38,5 @@ class LowPeStockPool(BaseStockPool):
                 if code not in stocklist:
                     stocklist.append(code)
             date_codes_dict[date] = stocklist
-
+            last_date = date
         return adjusted_dates, date_codes_dict

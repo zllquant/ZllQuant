@@ -31,8 +31,11 @@ class DailyUpBreakMa10(BaseSignal):
                     )
                 )
             if len(update_requests) > 0:
-                self.collection.bulk_write(update_requests, ordered=False)
+                update_result = self.collection.bulk_write(update_requests)
+                print('保存-%s-%s数据 , 插入:%4d , 更新:%4d'
+                      % (code, self.name, update_result.upserted_count, update_result.modified_count),
+                      flush=True)
 
 
 if __name__ == '__main__':
-    DailyUpBreakMa10().compute('20200101', '20200505')
+    DailyUpBreakMa10().compute('20150101', '20200805')
