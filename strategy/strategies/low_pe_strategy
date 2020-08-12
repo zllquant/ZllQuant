@@ -16,10 +16,13 @@ single_position = 200000
 stock_pool_rebalance_dates = 20
 
 # 回测周期, 开始日期, 默认值20150101
-begin_date = 20200701
+begin_date = 20200501
 
 # 结束日期 , 默认当前日期
 end_date = 20200805
 
 # 买入信号
 buy_signal = daily_up_break_ma10
+
+# 卖出信号
+sell_signal = daily_down_break_ma10

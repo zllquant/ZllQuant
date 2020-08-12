@@ -60,7 +60,10 @@ class StrategyOption:
 
     @property
     def buy_signal(self):
-        buy_signal = None
         if 'buy_signal' in self.options:
             return SignalFactory.get_signal(self.options['buy_signal'])
-        return buy_signal
+
+    @property
+    def sell_signal(self):
+        if 'sell_signal' in self.options:
+            return SignalFactory.get_signal(self.options['sell_signal'])

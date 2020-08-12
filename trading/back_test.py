@@ -1,4 +1,5 @@
 import rqdatac as rqd
+import pandas as pd
 
 rqd.init()
 
@@ -23,7 +24,11 @@ class Backtest:
         single_position = self.strategy_option.single_position
         # 现金
         cash = capital
+
+        # 买入卖出信号
         buy_signal = self.strategy_option.buy_signal
+        sell_signal = self.strategy_option.sell_signal
+
         print("获取股票池...")
         adjusted_dates, date_codes_dict = stock_pool.get_stocks()
         print("获取完毕!")
@@ -51,13 +56,13 @@ class Backtest:
                 for code in to_sell_copy:
                     # 没停牌
                     if not rqd.is_suspended(code, date, date).squeeze():
-                        sell_price = rqd.get_price(code, date, date, fields='open').values
+                        sell_price = rqd.get_price(code, date, date, fields='open').squeeze()
                         # 卖出的数量
                         volume = holding_stock_dict[code]['volume']
                         # 卖出的金额
                         sell_amount = sell_price * volume
                         cash += sell_amount
-                        print(f'卖出:日期:{date},股票:{code},成交价:{sell_price:8.2f}:,成交量:{volume:8d},成交额:{sell_amount:10.2f}',
+                        print(f'[卖出]:日期:{date},股票:{code},成交价:{sell_price:8.2f}:,成交量:{volume:8d},成交额:{sell_amount:10.2f}',
                               flush=True)
                         # 要卖的里面删除
                         to_sell.remove(code)
@@ -77,7 +82,8 @@ class Backtest:
                         stock_name = rqd.instruments(code).symbol
                         # 行业
                         industry = rqd.shenwan_instrument_industry(code)[1]
-                        buy_price = rqd.get_price(code, date, date, fields='open').values
+                        buy_price = rqd.get_price(code, date, date, fields='open').squeeze()
+
                         # 买入的股数
                         buy_volume = int(single_position / buy_price / 100) * 100
                         buy_amount = buy_price * buy_volume
@@ -104,11 +110,25 @@ class Backtest:
                             to_sell.add(code)
                 lastday_target_stock = today_target_stock
 
-            # 待买股票,并出现择时信号
+            # 每日判断是否出现卖出信号
+            if sell_signal is not None:
+                for code in holding_stock_dict:
+                    if sell_signal.is_match(code, date):
+                        to_sell.add(code)
+
+            # 每日判断是否出现买入信号
             to_buy.clear()
             if buy_signal is not None:
                 for code in today_target_stock:
                     if code not in holding_stock_dict and buy_signal.is_match(code, date):
                         to_buy.add(code)
 
+            # 打印待买,待卖列表
+            print('今日待买:', to_buy)
+            print('今日待卖:', to_sell)
+            print('今日持仓:', '\n', pd.DataFrame(holding_stock_dict).T)
             last_date = date
+
+
+if __name__ == '__main__':
+    pass
