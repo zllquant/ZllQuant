@@ -2,6 +2,7 @@ import rqdatac as rqd
 from datetime import datetime
 from strategy.stockpool.stock_pool_factory import StockPoolFactory
 from trading.signal.signal_factory import SignalFactory
+from trading.position.position_factory import PositionFactory
 
 """增加参数,获取参数类"""
 
@@ -17,7 +18,7 @@ class StrategyOption:
     def begin_date(self):
         begin_date = self.options.get('begin_date', None)
         if begin_date is None or begin_date == '':
-            begin_date = '20100101'
+            return '20100101'
 
         return begin_date
 
@@ -25,7 +26,7 @@ class StrategyOption:
     def end_date(self):
         end_date = self.options.get('end_date', None)
         if end_date is None or end_date == '':
-            end_date = datetime.now().strftime('%Y%m%d')
+            return datetime.now().strftime('%Y%m%d')
 
         return end_date
 
@@ -51,12 +52,6 @@ class StrategyOption:
             capital = 1e7
         return float(capital)
 
-    @property
-    def single_position(self):
-        single_position = self.options.get('single_position', None)
-        if single_position is None or single_position == '':
-            single_position = 2e5
-        return int(single_position)
 
     @property
     def buy_signal(self):
@@ -67,3 +62,17 @@ class StrategyOption:
     def sell_signal(self):
         if 'sell_signal' in self.options:
             return SignalFactory.get_signal(self.options['sell_signal'])
+
+    def get_initial_position_method(self):
+        position_method = None
+        if 'initial_position_method' in self.options:
+            name = self.options['initial_position_method']
+            return PositionFactory.get_position_method(name, self.options)
+        return position_method
+
+    def get_add_position_method(self):
+        add_position_method = None
+        if 'add_position_method' in self.options:
+            name = self.options['add_position_method']
+            return PositionFactory.get_position_method(name, self.options)
+        return add_position_method

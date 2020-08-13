@@ -1,28 +1,45 @@
 # 策略定义模板
 
+
 # 策略名称
 name = 低PE策略
+
 
 # 股票池
 stock_pool = low_pe_stock_pool
 
+
 # 初始资金
 capital = 1e7
 
+
+# 初始头寸分配方法
+initial_position_method = fix_position
 # 个股头寸
 single_position = 200000
+
+
+# 加仓方法
+add_position_method = fix_ratio_position
+add_position_ratio = 0.5
+
 
 # 股票池的调整周期
 stock_pool_rebalance_dates = 20
 
-# 回测周期, 开始日期, 默认值20150101
+
+# 开始日期, 默认值20150101
 begin_date = 20200501
+
 
 # 结束日期 , 默认当前日期
 end_date = 20200805
 
+
 # 买入信号
 buy_signal = daily_up_break_ma10
 
+
 # 卖出信号
 sell_signal = daily_down_break_ma10
+
