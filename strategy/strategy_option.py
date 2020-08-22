@@ -3,6 +3,7 @@ from datetime import datetime
 from strategy.stockpool.stock_pool_factory import StockPoolFactory
 from trading.signal.signal_factory import SignalFactory
 from trading.position.position_factory import PositionFactory
+from trading.loss.stop_loss_factory import StopLossFactory
 
 """增加参数,获取参数类"""
 
@@ -52,6 +53,13 @@ class StrategyOption:
             capital = 1e7
         return float(capital)
 
+    @property
+    def benchmark(self):
+        benchmark = self.options.get('benchmark', None)
+        if benchmark is None or benchmark == '':
+            benchmark = '000300.XSHG'
+        return benchmark
+
 
     @property
     def buy_signal(self):
@@ -63,16 +71,20 @@ class StrategyOption:
         if 'sell_signal' in self.options:
             return SignalFactory.get_signal(self.options['sell_signal'])
 
-    def get_initial_position_method(self):
-        position_method = None
+    @property
+    def initial_position_method(self):
         if 'initial_position_method' in self.options:
             name = self.options['initial_position_method']
             return PositionFactory.get_position_method(name, self.options)
-        return position_method
 
-    def get_add_position_method(self):
-        add_position_method = None
+    @property
+    def add_position_method(self):
         if 'add_position_method' in self.options:
             name = self.options['add_position_method']
             return PositionFactory.get_position_method(name, self.options)
-        return add_position_method
+
+    @property
+    def stop_loss(self):
+        if 'stop_loss' in self.options:
+            name = self.options['stop_loss']
+            return StopLossFactory.get_stop_loss(name, self.options)

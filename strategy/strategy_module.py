@@ -1,6 +1,6 @@
 import os, sys
 from strategy.strategy_option import StrategyOption
-from trading.back_test import Backtest
+from trading.back_test import BackTest
 
 """解析文件"""
 
@@ -24,7 +24,7 @@ class StrategyModule:
                 self.strategy_option.add_option(fields[0].strip(), fields[1].strip())
 
     def backtest(self):
-        backtest = Backtest(self.strategy_option)
+        backtest = BackTest(self.strategy_option)
         backtest.run()
 
 

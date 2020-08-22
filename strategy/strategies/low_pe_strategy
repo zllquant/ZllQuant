@@ -12,6 +12,8 @@ stock_pool = low_pe_stock_pool
 # 初始资金
 capital = 1e7
 
+# 比较基准
+benchmark = 000300.XSHG
 
 # 初始头寸分配方法
 initial_position_method = fix_position
@@ -19,17 +21,12 @@ initial_position_method = fix_position
 single_position = 200000
 
 
-# 加仓方法
-add_position_method = fix_ratio_position
-add_position_ratio = 0.5
-
-
 # 股票池的调整周期
 stock_pool_rebalance_dates = 20
 
 
 # 开始日期, 默认值20150101
-begin_date = 20200501
+begin_date = 20200101
 
 
 # 结束日期 , 默认当前日期
@@ -43,3 +40,14 @@ buy_signal = daily_up_break_ma10
 # 卖出信号
 sell_signal = daily_down_break_ma10
 
+
+# 加仓方法
+add_position_method = fix_ratio_position
+add_position_ratio = 0.5
+
+# 止损策略
+# stop_loss = fix_ratio
+# stop_loss_ratio = 0.05
+
+stop_loss = tracking_stop_loss
+stop_loss_ratio = 0.05

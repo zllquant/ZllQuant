@@ -68,5 +68,5 @@ class DailyDownBreakMa10(BaseSignal):
 
 
 if __name__ == '__main__':
-    DailyUpBreakMa10().compute('20190101', '20200805')
-    # DailyDownBreakMa10().compute('20190101', '20200805')
+    DailyDownBreakMa10().compute('20200101', '20200820')
+    # DailyDownBreakMa10().compute('20190101', '20200101')

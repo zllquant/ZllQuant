@@ -18,9 +18,8 @@ class FixRatioAddPositionMethod(BaseAddPositionMethod):
         )
 
     def get_position(self, code):
-        position = 0
         # 有字段说明已经加仓,不再加仓
         if code in self.holding_stock_dict and \
                 'added' not in self.holding_stock_dict[code]:
             position = self.ratio * self.holding_stock_dict[code]['cost']
-        return position
+            return position

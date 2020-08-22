@@ -51,6 +51,7 @@ class FactorModule:
 
         return df_factor
 
+
     def get_factor_one_day(self, universe, factor=None, date=None):
         """
         get a factor value of all codes in one day
