@@ -13,7 +13,8 @@ class FixRatioAddPositionMethod(BaseAddPositionMethod):
             {
                 'cost': holding_stock['cost'] + cost,
                 'added': True,
-                'volume': holding_stock['volume'] + volume
+                'volume': holding_stock['volume'] + volume,
+                'last_value': holding_stock['last_value'] + cost
             }
         )
 

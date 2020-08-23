@@ -2,5 +2,7 @@
 from pymongo import MongoClient
 from util.password import *
 
-DB_CONN = MongoClient(host=IP, port=27017)[Database]
-DB_CONN.authenticate(user, password)
+# DB_CONN = MongoClient(host=IP, port=27017)[Database]
+# DB_CONN.authenticate(user, password)
+
+DB_CONN = MongoClient(host='localhost', port=27017)[Database]

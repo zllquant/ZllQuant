@@ -14,8 +14,8 @@ class FixRatioStopLoss(BaseStopLoss):
         if code in self.holding_stock_dict:
             cost = self.holding_stock_dict[code]['cost']
             last_value = self.holding_stock_dict[code]['last_value']
-            if cost < last_value:
-                return False
             profit = last_value / cost - 1
-            return (profit + self.ratio) <= 0
+            if (profit + self.ratio) <= 0:
+                print(f"[止损]: 股票: {code}, 成本:{cost:10.2f}, 市值:{last_value:10.2f}, 收益:{profit:5.2f}")
+                return True
         return False

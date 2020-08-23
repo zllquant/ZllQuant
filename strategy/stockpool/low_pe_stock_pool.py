@@ -14,29 +14,22 @@ class LowPeStockPool(BaseStockPool):
         date_codes_dict = {}
         # 获取因子数据
         fm = FactorModule()
-        last_date = None
-        stocklist = []
         for index in range(0, len(all_dates), self.interval):
             date = all_dates[index]
             print('正在获取:', date)
             adjusted_dates.append(date)
-            # 先保存现在持有的股票中的停牌股
-            if len(stocklist) > 0:
-                stocks_suspend = []
-                for code in stocklist:
-                    if rqd.is_suspended(code, date, date).squeeze():
-                        stocks_suspend.append(code)
-                stocklist = stocks_suspend
+            # # 先保存现在持有的股票中的停牌股
+            # if len(stocklist) > 0:
+            #     stocks_suspend = []
+            #     for code in stocklist:
+            #         if rqd.is_suspended(code, date, date).squeeze():
+            #             stocks_suspend.append(code)
+            #     stocklist = stocks_suspend
 
             # 去除了今天停牌、ST、上市不满60
             universe = filter_stock_pool(date)
             # 用的是米筐的数据
             df_factor = fm.get_factor_one_day(universe, 'pe_ratio_ttm', date)
-            for code in df_factor[df_factor > 0].sort_values().index:
-                if len(stocklist) >= 100:
-                    break
-                if code not in stocklist:
-                    stocklist.append(code)
+            stocklist = df_factor[df_factor > 0].nsmallest(100).index.tolist()
             date_codes_dict[date] = stocklist
-            last_date = date
         return adjusted_dates, date_codes_dict

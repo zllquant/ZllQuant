@@ -2,13 +2,32 @@ import rqdatac as rqd
 import pandas as pd
 import matplotlib.pyplot as plt
 
-plt.style.use('ggplot')
-rqd.init()
-
 
 class BackTest:
     def __init__(self, strategy_option):
+        plt.style.use('ggplot')
+        rqd.init()
         self.strategy_option = strategy_option
+
+    def get_all_code_price(self, date, holding_stock_dict, to_buy, to_sell, to_add):
+        all_code_set = set()
+        for code in holding_stock_dict.keys():
+            all_code_set.add(code)
+        all_code_set = all_code_set.union(to_sell).union(to_buy).union(to_add)
+        if len(all_code_set) == 0:
+            return None
+        df_price = rqd.get_price(all_code_set, date, date, fields=['open', 'close'], expect_df=True).droplevel(1)
+        is_suspend = rqd.is_suspended(all_code_set, date, date).squeeze()
+        df_price['is_suspended'] = is_suspend
+
+        return df_price
+
+    def save_and_print_trades(self, side, amount, price, volume, code, date, trades):
+        print(
+            f'[{side}]: 股票:{code},成交价:{price:8.2f}:,成交量:{volume:8d},成交额:{amount:10.2f}',
+            flush=True)
+        trades.append({'日期': date, '代码': code, '方向': side, '成交价': price, '成交量': volume,
+                       '成交额': amount})
 
     def run(self):
         print("开始回测".center(40, '*'))
@@ -41,6 +60,8 @@ class BackTest:
         add_position_method = self.strategy_option.add_position_method
         # 止损策略
         stop_loss = self.strategy_option.stop_loss
+        # 止盈策略
+        stop_profit = self.strategy_option.stop_profit
 
         # ===================初始化变量====================
         # 初始现金
@@ -63,6 +84,8 @@ class BackTest:
             add_position_method.set_holding_stocks(holding_stock_dict)
         if stop_loss is not None:
             stop_loss.set_holding_stocks(holding_stock_dict)
+        if stop_profit is not None:
+            stop_profit.set_holding_stocks(holding_stock_dict)
 
         # 交易日历
         all_dates = rqd.get_trading_dates(begin_date, end_date)
@@ -72,6 +95,8 @@ class BackTest:
         last_date = None
         for date in all_dates:
             print('日期:%s'.center(70, '*') % date)
+            # 获得所有股票的行情和停牌信息
+            df_price = self.get_all_code_price(date, holding_stock_dict, to_buy, to_sell, to_add)
             # 如果某天发生除权除息,股价会突变,持仓量也会变化
             if last_date is not None:
                 pass
@@ -81,8 +106,8 @@ class BackTest:
                 to_sell_copy = to_sell.copy()
                 for code in to_sell_copy:
                     # 没停牌
-                    if not rqd.is_suspended(code, date, date).squeeze():
-                        sell_price = rqd.get_price(code, date, date, fields='open').squeeze()
+                    if not df_price.loc[code, 'is_suspended']:
+                        sell_price = df_price.loc[code, 'open']
                         # 卖出的数量
                         sell_volume = holding_stock_dict[code]['volume']
                         # 卖出的金额
@@ -106,8 +131,8 @@ class BackTest:
                               (cash, single_position))
                         break
                     # 没停牌,且现金大于个股仓位
-                    if not rqd.is_suspended(code, date, date).squeeze():
-                        buy_price = rqd.get_price(code, date, date, fields='open').squeeze()
+                    if not df_price.loc[code, 'is_suspended']:
+                        buy_price = df_price.loc[code, 'open']
                         # 买入的股数
                         buy_volume = int(single_position / buy_price / 100) * 100
                         buy_amount = buy_price * buy_volume
@@ -135,8 +160,8 @@ class BackTest:
                               (cash, single_position))
                         break
                     # 没停牌,且现金大于个股仓位
-                    if not rqd.is_suspended(code, date, date).squeeze():
-                        buy_price = rqd.get_price(code, date, date, fields='open').squeeze()
+                    if not df_price.loc[code, 'is_suspended']:
+                        buy_price = df_price.loc[code, 'open']
                         # 买入的股数
                         buy_volume = int(single_position / buy_price / 100) * 100
                         buy_amount = buy_price * buy_volume
@@ -172,9 +197,9 @@ class BackTest:
                     if code not in holding_stock_dict and buy_signal.is_match(code, date):
                         to_buy.add(code)
 
-            # 加仓信号
+            # 加仓
             to_add.clear()
-            if buy_signal is not None:
+            if buy_signal is not None and add_position_method is not None:
                 for code in holding_stock_dict:
                     if buy_signal.is_match(code, date):
                         to_add.add(code)
@@ -184,19 +209,26 @@ class BackTest:
             # 持仓股总市值
             total_value = 0
             if len(codes) > 0:
-                df_holding_daily = rqd.get_price(codes, date, date, fields='close').squeeze()
+                df_holding_daily = df_price.loc[codes, 'close']
                 for code in df_holding_daily.index:
                     close = df_holding_daily.loc[code]
                     value = close * holding_stock_dict[code]['volume']
                     holding_stock_dict[code]['last_value'] = value
                     total_value += value
 
-            # 判断持仓股是否需要止损
+            # 止损
             if stop_loss is not None:
                 # 更新持仓股信息
                 stop_loss.update_holding_stocks()
                 for code in holding_stock_dict:
                     if stop_loss.is_stop_loss(code):
+                        to_sell.add(code)
+            # 止盈
+            if stop_profit is not None:
+                # 更新持仓股信息
+                # stop_loss.update_holding_stocks()
+                for code in holding_stock_dict:
+                    if stop_profit.is_stop_profit(code):
                         to_sell.add(code)
 
             # 当期总资产
@@ -219,16 +251,8 @@ class BackTest:
 
         # trades = pd.DataFrame(trades)
         # trades.to_csv(r'trades.csv')
-        print(profit_df)
         profit_df.plot(figsize=(8, 4))
         plt.show()
-
-    def save_and_print_trades(self, side, amount, price, volume, code, date, trades):
-        print(
-            f'[{side}]: 股票:{code},成交价:{price:8.2f}:,成交量:{volume:8d},成交额:{amount:10.2f}',
-            flush=True)
-        trades.append({'日期': date, '代码': code, '方向': side, '成交价': price, '成交量': volume,
-                       '成交额': amount})
 
 
 if __name__ == '__main__':

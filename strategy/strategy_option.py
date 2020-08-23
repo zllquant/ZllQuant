@@ -1,6 +1,6 @@
-import rqdatac as rqd
 from datetime import datetime
 from strategy.stockpool.stock_pool_factory import StockPoolFactory
+from trading.profit.stop_profit_factory import StopProfitFactory
 from trading.signal.signal_factory import SignalFactory
 from trading.position.position_factory import PositionFactory
 from trading.loss.stop_loss_factory import StopLossFactory
@@ -60,7 +60,6 @@ class StrategyOption:
             benchmark = '000300.XSHG'
         return benchmark
 
-
     @property
     def buy_signal(self):
         if 'buy_signal' in self.options:
@@ -88,3 +87,9 @@ class StrategyOption:
         if 'stop_loss' in self.options:
             name = self.options['stop_loss']
             return StopLossFactory.get_stop_loss(name, self.options)
+
+    @property
+    def stop_profit(self):
+        if 'stop_profit' in self.options:
+            name = self.options['stop_profit']
+            return StopProfitFactory.get_stop_profit(name, self.options)
