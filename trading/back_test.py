@@ -223,6 +223,7 @@ class BackTest:
                 for code in holding_stock_dict:
                     if stop_loss.is_stop_loss(code):
                         to_sell.add(code)
+
             # 止盈
             if stop_profit is not None:
                 # 更新持仓股信息
